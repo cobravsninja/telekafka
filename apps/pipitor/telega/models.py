@@ -12,7 +12,7 @@ class ActiveGoogleSearch(models.Model):
   chat_id     = models.CharField(max_length=100)
 
   def __str__(self):
-    return '{}-{}'.format(self.pk,self.query)
+    return f'{self.pk} - {self.query}'
 
 class ActiveInstagramSearch(ActiveGoogleSearch):
   pass
@@ -26,7 +26,7 @@ class Url(models.Model):
     abstract = True
 
   def __str__(self):
-    return '{} - {}'.format(self.status,self.requested)
+    return f'{self.status} - {self.requested}'
 
 class GoogleUrl(Url):
   active        = models.ForeignKey(ActiveGoogleSearch,on_delete=models.CASCADE)
