@@ -1,19 +1,41 @@
 # bot modules
+import traceback
 import telegram
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from lib.bot_commands import BotCommands
+from time import sleep
 
 # etc
 import json
+
+class ModifiedBot(telegram.Bot):
+
+  def add_logger(self,logger):
+    self.logger = logger
+
+  # retry message in case of send message timeouts
+  def retry_message(self,**kwargs):
+    try:
+      print(f'kwargs {kwargs}')
+      self.send_message(
+        chat_id=kwargs['chat_id'],
+        text=kwargs['text']
+      )
+    except Exception as e:
+      self.logger.error(f"error while submitting message ({kwargs['text']}) to telegram, sleeping for a while. error message - {e}")
+      sleep(15)
+      #self.retry_message(chat_id=kwargs['chat_id'],text=kwargs['text'])
 
 class Bot():
   def __init__(self,**kwargs):
     self.logger = kwargs['logger']
     self.config = kwargs['config']
     self.logger.info('creating bot')
-    self.bot = telegram.Bot(token=self.config['bot_token'])
-    self.updater = Updater(bot=self.bot,use_context=True)
+    #self.bot = telegram.Bot(token=self.config['bot_token'])
+    self.bot = ModifiedBot(token=self.config['bot_token'])
+    self.bot.add_logger(self.logger)
+    self.updater = Updater(bot=self.bot,use_context=True,request_kwargs={'read_timeout': 60, 'connect_timeout': 60})
     dispatcher = self.updater.dispatcher
 
     # bot commands init

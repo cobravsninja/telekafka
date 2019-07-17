@@ -42,10 +42,7 @@ class Downloader():
     except Exception as e:
       error = f'''error ocurred while fetching {url} for "{self.msg['query']}" {self.msg['search']} search, error - {e}'''
       self.logger.error(error)
-      self.bot.send_message(
-        chat_id=self.msg['chat_id'],
-        text=error
-      )
+      self.bot.retry_message(chat_id=self.msg['chat_id'],text=error)
       return
     if photo.status_code == requests.codes.ok:
       img_file = '/tmp/' + str(randint(100000,1000000))
@@ -60,8 +57,5 @@ class Downloader():
       except Exception as e:
         error = f'sorry, some error ocurred while submitting image to telegram (URL {url}, error {e})'
         self.logger.error(error)
-        self.bot.send_message(
-          chat_id=self.msg['chat_id'],
-          text=error
-        )
+        self.bot.retry_message(chat_id=self.msg['chat_id'],text=error)
       unlink(img_file)

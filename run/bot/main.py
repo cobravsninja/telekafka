@@ -27,7 +27,7 @@ def main(config,thread,threads,producer_queue,Logger,log_path):
     kafka_group=config['kafka_group'],
     logger=logger
   )
-  thread(Downloader,3,
+  thread(Downloader,9,
     bot=bot,
     kafka_bot_urls_topics=[config['kafka_bot_urls_topic']], # should be list
     kafka_servers=config['kafka_servers'],

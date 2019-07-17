@@ -26,4 +26,4 @@ class OutgoingMsgs():
        
       self.logger.info(f'received msg {msg}')
       msg = json.loads(msg['msg'])
-      self.bot.send_message(chat_id=msg['chat_id'],text=msg['msg'])
+      self.bot.retry_message(chat_id=msg['chat_id'],text=msg['msg'])

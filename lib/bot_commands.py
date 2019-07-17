@@ -18,7 +18,6 @@ class BotCommands():
     command = update.message.text.split(' ')[0]
     query = ' '.join(update.message.text.split(' ')[1:])
     topic = self.kafka_google_requests_topic if command.upper() == '/GOOGLE' else self.kafka_instagram_requests_topic
-    self.logger.info('ya tut')
 
     try:
       self.put_to_queue(topic,update.message.message_id,
@@ -29,8 +28,6 @@ class BotCommands():
       )
     except Exception as e:
       self.logger.error(f'exception {e}')
-
-    self.logger.info('ya tut2')
 
   def message_handler(self,update,context):
     self.logger.info(f'checking msg:\n{update}')
@@ -43,7 +40,7 @@ class BotCommands():
     self.producer_queue.put({'topic': topic,'key': key,'msg': msg})
 
   def unknown_command_handler(self,update,context):
-    self.bot.send_message(chat_id=update.message.chat.id,text='unknown command, sorry')
+    self.bot.retry_message(chat_id=update.message.chat.id,text='unknown command, sorry')
 
   def check_id(self,msg):
     if msg.id in self.chat_ids:
@@ -51,4 +48,4 @@ class BotCommands():
         return True
 
   def send_msg(self,chat_id,msg):
-    self.bot.send_message(chat_id=chat_id,text=msg)
+    self.bot.retry_message(chat_id=chat_id,text=msg)

@@ -66,12 +66,12 @@ class Search():
       else:
         record.status = True
         record.save()
-        self.get_urls(msg,record)
-        record.status = False
-        record.save()
+        if self.get_urls(msg,record): # no need to save record if we deleted it in get_urls method
+          record.status = False
+          record.save()
         return  
     except Exception as e:
-      self.logger.error('object not found, etc.')
+      self.logger.error(f'object not found, etc - {e}')
           
     record = model(query=json_msg['query'],chat_id=json_msg['chat_id'])
     record.save()
@@ -108,6 +108,7 @@ class Search():
       return
 
     model = self.get_model(msg['topic'])[1]
+    print(f'model {model}')
     record = model(url=msg['msg'],active=query)
     record.save()
 
@@ -137,9 +138,10 @@ class Search():
     url_model = self.get_model(msg['topic'])[1]
     data = url_model.objects.filter(active=query,status=True).values('id')[:3]
     if len(data) == 0:
+      data = None
       query.delete()
       self.search_request(msg)
-      return
+      return None
     
     for i in data:
       i = url_model.objects.get(pk=i['id'])
@@ -156,3 +158,4 @@ class Search():
           'query':query.query
         })
       })
+    return True
